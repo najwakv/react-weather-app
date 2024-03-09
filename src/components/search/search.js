@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { AsyncPaginate } from "react-select-async-paginate";
-import { GEO_API_URL, gioApiOptions } from "../../api";
+import { GEO_API_URL, gioApiOptions, WEATHER_API_URL, WEATHER_API_KEY } from "../../api";
 
 const Search = ({ onSearchChange }) => {
   const [search, setSearch] = useState(null);
-
-  const handleOnChange = (searchData) => {
-    setSearch(searchData);
-    onSearchChange(searchData);
-  };
 
   const loadOptions = (inputValue) => {
     return fetch(
@@ -28,6 +23,28 @@ const Search = ({ onSearchChange }) => {
       })
       .catch((err) => console.log(err));
   };
+  
+  const fetchWeatherData = (cityCoordinates) => {
+    return fetch(
+      `${WEATHER_API_URL}/weather?lat=${cityCoordinates.latitude}&lon=${cityCoordinates.longitude}&appid=${WEATHER_API_KEY}`
+    )
+      .then((response) => response.json())
+      .then((data) => {
+        // Process weather data and return it
+        return data;
+      })
+      .catch((err) => console.log(err));
+  };
+  
+  const handleOnChange = async (searchData) => {
+    setSearch(searchData);
+    onSearchChange(searchData);
+    
+    // Fetch weather data for the selected city
+    const weatherData = await fetchWeatherData(searchData);
+    console.log(weatherData); // Display weather data in console or update state with weatherData
+  };
+  
 
   return (
     <AsyncPaginate
